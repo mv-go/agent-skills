@@ -61,6 +61,24 @@
           ]
         }
       }
+    },
+    "repo-cleanup": {
+      "packages": {
+        "codex": {
+          "source": "skills/repo-cleanup",
+          "files": [
+            "SKILL.md",
+            "agents/openai.yaml"
+          ]
+        },
+        "claude": {
+          "source": "plugins/repo-cleanup",
+          "files": [
+            ".claude-plugin/plugin.json",
+            "skills/repo-cleanup/SKILL.md"
+          ]
+        }
+      }
     }
   }
 }

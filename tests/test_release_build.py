@@ -38,7 +38,9 @@ class ReleaseBuildTests(unittest.TestCase):
             universal = zip_files(out / manifest['bundle']['asset'])
             host_bundles = {h: zip_files(out / p['asset']) for h, p in manifest['bundles'].items()}
             self.assertEqual(set(host_bundles), {'codex', 'claude'})
-            self.assertEqual({n.split('/')[0] for n in host_bundles['claude']} - {'.claude-plugin'}, {'budget-aware-swarm'})
+            expected_claude = {skill for skill, definition in catalog.items()
+                               if 'claude' in definition['packages']}
+            self.assertEqual({n.split('/')[0] for n in host_bundles['claude']} - {'.claude-plugin'}, expected_claude)
             for skill, definition in manifest['skills'].items():
                 single = zip_files(out / definition['asset'])
                 for host, package in definition['packages'].items():
@@ -116,6 +118,9 @@ class ReleaseBuildTests(unittest.TestCase):
             self.assertFalse(any('install' in name for name in assets))
 
     def test_claude_bundles_are_native_marketplaces_without_generated_consumer_scripts(self):
+        catalog = json.loads((ROOT / 'releases/catalog.json').read_text())['skills']
+        claude_skills = sorted(skill for skill, definition in catalog.items()
+                               if 'claude' in definition['packages'])
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp)
             manifest = builder.build(ROOT, out, version='1.2.3')
@@ -124,7 +129,7 @@ class ReleaseBuildTests(unittest.TestCase):
                     files = zip_files(out / entry['asset'])
                     marketplace = json.loads(files['.claude-plugin/marketplace.json'])
                     self.assertEqual(marketplace['name'], 'tired-tools-releases')
-                    self.assertEqual([p['name'] for p in marketplace['plugins']], ['budget-aware-swarm'])
+                    self.assertEqual([p['name'] for p in marketplace['plugins']], claude_skills)
                     for plugin in marketplace['plugins']:
                         prefix = plugin['source'].removeprefix('./')
                         metadata = json.loads(files[prefix + '/.claude-plugin/plugin.json'])

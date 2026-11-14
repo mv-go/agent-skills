@@ -31,8 +31,12 @@ class ClaudePluginPackagingTests(unittest.TestCase):
                 manifest = json.loads((source / ".claude-plugin/plugin.json").read_text())
                 self.assertEqual(entry["name"], manifest["name"])
                 self.assertRegex(manifest["version"], r"^\d+\.\d+\.\d+$")
-                self.assertTrue(list((source / "skills").glob("*/SKILL.md")))
-                self.assertTrue(list((source / "agents").glob("*.md")))
+                self.assertTrue((source / "skills" / entry["name"] / "SKILL.md").is_file())
+
+    def test_repo_cleanup_entrypoint_matches_across_hosts(self):
+        codex = ROOT / "skills/repo-cleanup/SKILL.md"
+        claude = ROOT / "plugins/repo-cleanup/skills/repo-cleanup/SKILL.md"
+        self.assertEqual(codex.read_bytes(), claude.read_bytes())
 
     def test_markdown_references_survive_copying_only_the_plugin(self):
         for entry, source in self.packages():

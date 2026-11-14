@@ -13,7 +13,7 @@ manual release tag is needed.
 
 Each release provides one universal ZIP per skill, platform-specific ZIPs,
 and three all-skills bundles: universal, Codex, and Claude Code. The Claude
-bundle currently contains only Budget-Aware Swarm. Instructions differ by
+bundle includes the skills configured for Claude Code. Instructions differ by
 platform and stay separate inside universal archives.
 
 Agents install directly from release assets using the tools available on the
@@ -74,6 +74,17 @@ built-in `skill-installer`, repository `mv-go/agent-skills`, path
 neither installs/configures Swarm nor schedules automatic cleanup. See
 [the skill](skills/mac-storage-cleanup/SKILL.md) and its
 [reviewed boundaries](skills/mac-storage-cleanup/references/cleanup-boundaries.md).
+
+## Repository Cleanup
+
+Use `$repo-cleanup` in Codex or `/repo-cleanup:repo-cleanup` in Claude Code to
+audit or implement scoped repository documentation and structure cleanup.
+Audits are read-only; implementation stays within the requested scope and
+preserves useful behavior, provenance, and evidence. For source development,
+install the Codex skill from `mv-go/agent-skills`, path `skills/repo-cleanup`,
+or install the Claude Code plugin from the repository's `tired-tools`
+marketplace. Released Codex and Claude packages are listed in
+[release usage](docs/releases.md).
 
 ## Codex Token Audit
 
