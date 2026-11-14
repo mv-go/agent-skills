@@ -5,6 +5,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import types
 import unittest
 from unittest import mock
 
@@ -68,6 +69,74 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(result["status"], "partial")
         self.assertEqual(result["allocated_bytes"], 24 * 1024)
         self.assertTrue(any("timed out" in error for error in result["errors"]))
+
+    def test_metadata_passes_share_one_timeout_budget(self):
+        with mock.patch.object(module.time, "monotonic", side_effect=[10, 11, 71]), \
+             mock.patch.object(module.subprocess, "run",
+                               side_effect=subprocess.TimeoutExpired("du", 59)) as run:
+            result = module.inventory(str(self.root), timeout=60)
+        self.assertEqual(run.call_count, 1)
+        self.assertEqual(result["status"], "partial")
+        self.assertIsNone(result["apparent_bytes"])
+
+    def test_failed_protection_blocks_before_any_target_access(self):
+        with mock.patch.object(module, "protect_cloud_files",
+                               side_effect=module.DownloadProtectionError("refused")), \
+             mock.patch.object(module.os, "lstat") as lstat, \
+             mock.patch.object(module.subprocess, "run") as run:
+            result = module.inventory("/cloud/unavailable", children=True)
+        self.assertEqual(result["status"], "blocked")
+        lstat.assert_not_called()
+        run.assert_not_called()
+
+    def test_public_inventory_rejects_caller_supplied_protection(self):
+        with mock.patch.object(module.os, "lstat") as lstat:
+            with self.assertRaises(TypeError):
+                module.inventory("/cloud/unavailable", _protection={"status": "verified"})
+        lstat.assert_not_called()
+
+    def test_main_protection_failure_does_not_create_report(self):
+        output = self.base / "must-not-exist.json"
+        with mock.patch.object(module, "protect_cloud_files",
+                               side_effect=module.DownloadProtectionError("refused")):
+            self.assertEqual(module.main(["--path", str(self.root), "--output", str(output)]), 2)
+        self.assertFalse(output.exists())
+
+    def test_macos_policy_refusal_and_child_policy_mismatch_are_rejected(self):
+        libc = types.SimpleNamespace(setiopolicy_np=mock.Mock(return_value=-1),
+                                     getiopolicy_np=mock.Mock(return_value=1))
+        with mock.patch.object(module.sys, "platform", "darwin"), \
+             mock.patch.object(module.ctypes, "CDLL", return_value=libc), \
+             mock.patch.object(module.subprocess, "Popen") as popen:
+            with self.assertRaises(module.DownloadProtectionError):
+                module.protect_cloud_files()
+            popen.assert_not_called()
+            libc.setiopolicy_np.return_value = 0
+            popen.return_value.communicate.return_value = ("2\n", "")
+            popen.return_value.returncode = 0
+            with self.assertRaises(module.DownloadProtectionError):
+                module.protect_cloud_files()
+
+    def test_dataless_flag_and_logical_size_reported_without_content_read(self):
+        placeholder = self.root / "cloud-file"
+        placeholder.touch()
+        actual = placeholder.lstat()
+        info = types.SimpleNamespace(st_mode=actual.st_mode, st_blocks=0,
+                                     st_size=10**9, st_flags=module.SF_DATALESS)
+        with mock.patch.object(module, "protect_cloud_files", return_value={"status": "verified"}), \
+             mock.patch.object(module.os, "lstat", return_value=info), \
+             mock.patch.object(module.subprocess, "run") as run:
+            result = module.inventory(str(placeholder))
+        self.assertEqual(result["allocated_bytes"], 0)
+        self.assertEqual(result["apparent_bytes"], 10**9)
+        self.assertTrue(result["cloud_only"])
+        run.assert_not_called()
+
+    @unittest.skipUnless(sys.platform == "darwin", "native macOS protection")
+    def test_native_policy_is_verified_in_exec_child(self):
+        self.assertEqual(module.protect_cloud_files(), {
+            "status": "verified", "materialization": "off",
+            "process_policy": 1, "exec_child_policy": 1})
 
     def test_sparse_file_uses_allocated_blocks(self):
         sparse = self.root / "sparse file"
