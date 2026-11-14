@@ -37,12 +37,15 @@ Codex Cloud does not inherit a local installation. Repeat discovery and installa
 
 ## Claude Code
 
-For a persistent Swarm install, download `all-skills-<version>-claude.zip` and extract it to a stable local directory. It contains a ready `.claude-plugin/marketplace.json` and `budget-aware-swarm/` plugin. Add and install it with Claude's native CLI:
+For a persistent plugin install, download `all-skills-<version>-claude.zip` and extract it to a stable local directory. It contains a ready `.claude-plugin/marketplace.json` and the Claude packages listed in the release manifest. Add and install a selected plugin with Claude's native CLI:
 
 ```sh
 claude plugin marketplace add /absolute/path/to/extracted/bundle
 claude plugin install budget-aware-swarm@tired-tools-releases --scope user
 ```
+
+The same bundle includes `repo-cleanup`; install it with
+`claude plugin install repo-cleanup@tired-tools-releases --scope user`.
 
 The marketplace uses the extracted plugin files; keep the directory in place. For an update, replace the extracted bundle with the verified new version, then run `claude plugin marketplace update tired-tools-releases` and `claude plugin update budget-aware-swarm@tired-tools-releases`. Restart Claude Code when requested because it maintains a plugin cache. Confirm the loaded plugin version after restart. A single `budget-aware-swarm-<version>-claude.zip` is also usable for a session with `claude --plugin-dir /absolute/path/to/extracted/plugin`. For `claude.ai/code` skill discovery, see [the Claude guide](claude.md).
 

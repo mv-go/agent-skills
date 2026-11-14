@@ -1,0 +1,4 @@
+interface:
+  display_name: "Repository Cleanup"
+  short_description: "Audit or implement scoped repository cleanup"
+  default_prompt: "Use $repo-cleanup to audit or implement repository cleanup within the requested scope, preserving useful information and verifying the changes."

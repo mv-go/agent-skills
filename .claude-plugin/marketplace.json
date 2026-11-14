@@ -9,6 +9,11 @@
       "name": "budget-aware-swarm",
       "source": "./plugins/budget-aware-swarm",
       "description": "Explicit Budget-Aware Swarm orchestration for Claude Code with Opus, Sonnet, and Haiku workers."
+    },
+    {
+      "name": "repo-cleanup",
+      "source": "./plugins/repo-cleanup",
+      "description": "Audit or implement repository documentation and structure cleanup."
     }
   ]
 }
