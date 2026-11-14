@@ -83,19 +83,35 @@ or starts/stops Docker.** This is an instruction boundary, not a sandbox.
      --path "$HOME/Documents" --children --output "$run_dir/documents.json"
    ```
 
-   Create a fresh private `run_dir` under the state directory first. The helper
-   makes one bounded `du` walk per root, reports allocation and free-space units,
-   does not follow directory symlinks, and writes only the requested new report.
-   Exit 1 means partial evidence: inspect its errors, not a successful full scan.
-   Exit 2 means invalid arguments or an output file that could not be created
-   exclusively; no scan result was written.
+   Create a fresh private `run_dir` under the state directory first. On macOS,
+   the helper sets `IOPOL_MATERIALIZE_DATALESS_FILES_OFF` for its process and
+   verifies that the policy survives into an exec child before accessing any
+   requested path or creating the report. It does this for every scan, including
+   worker scans. This protects directory enumeration as well as file metadata;
+   metadata-only intent does not itself prevent iCloud downloads. The policy is
+   process-local and does not change iCloud settings or other apps.
+
+   If the policy cannot be set or child verification fails, the scan is blocked
+   before requested paths are accessed and the helper exits 2. Stop there: do
+   not retry with raw `du`, `stat`, Finder, or another unprotected command.
+   Exit 2 also covers invalid arguments or an output file that could not be
+   created exclusively. Exit 1 means partial evidence: inspect its errors, not a
+   successful full scan. Never treat missing cloud-folder metadata as zero or
+   download content to complete the inventory.
+
+   The helper reports local allocation (`allocated_bytes`) separately from
+   metadata/apparent size (`apparent_bytes`), and marks known dataless file
+   placeholders. Directory apparent sizes are rounded to KiB and can be
+   incomplete when cloud metadata is unavailable. Both bounded `du` passes
+   share one timeout budget. Apparent size describes metadata, not iCloud quota;
+   it is not a complete remote inventory. See [Apple TN3150](https://developer.apple.com/documentation/technotes/tn3150-getting-ready-for-data-less-files).
    Keep parent/child observations separate; never add overlapping totals or
    assume APFS clones represent independently reclaimable bytes.
-4. Drill into only the largest or newly grown entries. Inspect names, dates,
-   types and sizes rather than private document bodies. Access denial means
-   partial coverage: no sudo, privacy bypass, permission changes or repeated
-   retries to inspect protected folders. If useful, use an allowed read-only
-   Finder view to inspect Trash; do not infer it is empty from terminal denial.
+4. Drill into only the largest or newly grown entries returned by the protected
+   helper. Inspect names, dates, types and sizes rather than private document
+   bodies. Access denial means partial coverage: no sudo, privacy bypass,
+   permission changes, Finder inspection, or repeated unprotected retries to
+   inspect that location. Report unknown metadata as a coverage gap.
 5. Distinguish reproducible caches from installed runtimes, source datasets,
    generated work still needed, backups and app/account state. A directory named
    `.local`, `cache`, `artifacts`, or `node_modules` is not proof of disposability.
