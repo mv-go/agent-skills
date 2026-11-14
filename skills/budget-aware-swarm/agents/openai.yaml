@@ -1,0 +1,4 @@
+interface:
+  display_name: "Budget-Aware Swarm"
+  short_description: "Route bounded Codex subagents by cost, scope, and effort"
+  default_prompt: "Use $budget-aware-swarm only when explicitly invoked. Verify the current root model and effort from current-session evidence; if either is unresolved, pause and ask the user before substantive work or spawning. Apply the self-contained GPT-6.1 Sol root and child-edge policy bundled in SKILL.md without an external policy fetch. Follow separate project context requirements when applicable; any required WikiLayer writes belong to the root in the final completion phase."

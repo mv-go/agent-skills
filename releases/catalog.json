@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "skills": {
+    "budget-aware-swarm": {
+      "packages": {
+        "codex": {
+          "source": "skills/budget-aware-swarm",
+          "files": [
+            "SKILL.md",
+            "agents/openai.yaml",
+            "references/context-efficiency.md",
+            "references/installation.md",
+            "references/runtime.md",
+            "scripts/read_session_context.py"
+          ]
+        },
+        "claude": {
+          "source": "plugins/budget-aware-swarm",
+          "files": [
+            ".claude-plugin/plugin.json",
+            "agents/swarm-haiku.md",
+            "agents/swarm-opus.md",
+            "agents/swarm-sonnet.md",
+            "skills/budget-aware-swarm/SKILL.md",
+            "skills/budget-aware-swarm/references/runtime.md"
+          ]
+        }
+      }
+    },
+    "codex-token-audit": {
+      "packages": {
+        "codex": {
+          "source": "skills/codex-token-audit",
+          "files": [
+            "SKILL.md",
+            "agents/openai.yaml",
+            "references/drive-delivery.md",
+            "references/evidence.md",
+            "references/installation.md",
+            "references/standard-short-2026-10-28.json",
+            "scripts/audit_usage.py",
+            "scripts/bundle.py",
+            "scripts/connector_export.py",
+            "scripts/delivery_config.py",
+            "scripts/drive_export.py",
+            "scripts/runtime_evidence.py",
+            "scripts/setup_delivery.py"
+          ]
+        }
+      }
+    },
+    "mac-storage-cleanup": {
+      "packages": {
+        "codex": {
+          "source": "skills/mac-storage-cleanup",
+          "files": [
+            "SKILL.md",
+            "agents/openai.yaml",
+            "references/cleanup-boundaries.md",
+            "scripts/storage_inventory.py"
+          ]
+        }
+      }
+    }
+  }
+}

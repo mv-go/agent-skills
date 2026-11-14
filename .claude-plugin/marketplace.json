@@ -1,0 +1,14 @@
+{
+  "name": "tired-tools",
+  "description": "Claude Code plugins maintained by tired-tools.",
+  "owner": {
+    "name": "tired-tools"
+  },
+  "plugins": [
+    {
+      "name": "budget-aware-swarm",
+      "source": "./plugins/budget-aware-swarm",
+      "description": "Explicit Budget-Aware Swarm orchestration for Claude Code with Opus, Sonnet, and Haiku workers."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "scenario": "Historical Standard short-context API-price comparison; ignores speed, long-context premiums, cache writes and external tool costs",
+  "verified_at": "2026-10-28",
+  "source": "https://developers.openai.com/api/docs/pricing",
+  "reference_model": "gpt-6.1-sol",
+  "models": {
+    "gpt-6.1-sol": {"input": 2, "cached": 0.1, "output": 10},
+    "gpt-6.1-terra": {"input": 1, "cached": 0.05, "output": 5},
+    "gpt-6-luna": {"input": 0.1, "cached": 0.01, "output": 0.5}
+  }
+}

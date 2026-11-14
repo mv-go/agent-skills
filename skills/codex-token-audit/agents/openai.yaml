@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex Token Audit"
+  short_description: "Collect and export completed task usage evidence"
+  default_prompt: "Use $codex-token-audit to collect and validate a machine-readable usage package for the explicitly selected completed task; deliver it only to an explicitly configured Google Drive folder."

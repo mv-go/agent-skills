@@ -1,0 +1,10 @@
+{
+  "name": "budget-aware-swarm",
+  "version": "0.2.0",
+  "description": "Budget-Aware Swarm for Claude Code: explicit model routing, bounded delegation, and compact handoffs.",
+  "author": {
+    "name": "tired-tools"
+  },
+  "repository": "https://github.com/mv-go/agent-skills",
+  "keywords": ["budget-aware-swarm", "subagents", "orchestration"]
+}
