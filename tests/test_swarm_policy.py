@@ -45,7 +45,7 @@ def may_spawn_effort(policy: dict, parent_role: str, child_model: str,
 def root_selection_allowed(policy: dict, model: str, effort: str,
                            runtime_supported: set[str]) -> bool:
     """Root family is fixed by the instruction; effort must exist in this runtime."""
-    return model == policy["models"]["sol_root"]["model"] and effort in runtime_supported
+    return model in {policy["models"][role]["model"] for role in ("astra_root", "sol_root")} and effort in runtime_supported
 
 
 class OpenTreeModel:
@@ -129,6 +129,9 @@ class InstructionPolicyTests(unittest.TestCase):
 
     def test_complete_allowed_and_forbidden_edge_matrix(self):
         expected = {
+            ("astra_root", "sol"): (1, ["low"]),
+            ("astra_root", "terra"): (5, ["low", "medium", "high", "xhigh"]),
+            ("astra_root", "luna"): (20, "runtime-supported"),
             ("sol_root", "sol"): (3, ["low"]),
             ("sol_root", "terra"): (5, ["low", "medium", "high", "xhigh"]),
             ("sol_root", "luna"): (20, "runtime-supported"),
@@ -145,7 +148,7 @@ class InstructionPolicyTests(unittest.TestCase):
 
         # Child families and creator roles are distinct sets: Sol child edges are checked.
         child_models = {"sol", "terra", "luna", "astra", "unknown"}
-        parent_roles = {"sol_root", "sol_child", "terra", "luna", "astra", "unknown"}
+        parent_roles = {"astra_root", "sol_root", "sol_child", "terra", "luna", "astra", "unknown"}
         for parent in parent_roles:
             for child in child_models:
                 self.assertEqual((parent, child) in expected,
@@ -170,15 +173,16 @@ class InstructionPolicyTests(unittest.TestCase):
 
     def test_root_model_effort_evidence_and_pause_gates(self):
         root = self.policy["models"]["sol_root"]
-        self.assertEqual(root["model"], "GPT-6.1 Sol")
+        self.assertEqual(root["model"], "Sol")
         self.assertEqual(root["root_effort_guidance"],
                          ["usually-high", "xhigh-when-needed", "max-deliberate-exceptionally-difficult"])
-        self.assertTrue(root_selection_allowed(self.policy, "GPT-6.1 Sol", "low", {"low", "high"}))
-        self.assertFalse(root_selection_allowed(self.policy, "GPT-6 Astra", "high", {"high"}))
+        self.assertTrue(root_selection_allowed(self.policy, "Sol", "low", {"low", "high"}))
+        self.assertEqual(self.policy["models"]["astra_root"]["task_sol_dispatch_cap"], 1)
+        self.assertTrue(root_selection_allowed(self.policy, "Astra", "high", {"high"}))
         self.assertFalse(root_selection_allowed(self.policy, "unknown", "high", {"high"}))
-        self.assertFalse(root_selection_allowed(self.policy, "GPT-6.1 Sol", "ultra", {"high"}))
+        self.assertFalse(root_selection_allowed(self.policy, "Sol", "ultra", {"high"}))
         normalized = " ".join(self.skill.lower().split())
-        self.assertIn("the verified root is not gpt-6.1 sol", normalized)
+        self.assertIn("the verified root is outside the sol and astra families", normalized)
         self.assertIn("use high usually", normalized)
         self.assertIn("xhigh when needed", normalized)
         self.assertIn("max only as a deliberate choice", normalized)
@@ -193,6 +197,8 @@ class InstructionPolicyTests(unittest.TestCase):
         for edge in self.policy["edges"]:
             with self.subTest(parent=edge["parent"], child=edge["child"]):
                 tree = OpenTreeModel(self.policy)
+                if edge["parent"] == "astra_root":
+                    tree.roles["root"] = "astra_root"
                 # Create a parent node for nested edge tests when the edge creator is Sol/Terra.
                 if edge["parent"] == "sol_child":
                     _, _, parent_id = tree.attempt("root", "sol", "low", RUNTIME_EFFORTS)

@@ -46,10 +46,9 @@ missing telemetry for routing; label it `user-declared`, keeping effective
 values `unverified`. Do not ask the user to repeat a declaration already given
 for this session. Recheck after a model/effort change or resumed session; the
 check does not change the selected root or expand its allowed child models.
-Once resolved, apply the fixed root policy below. If the verified root is not
-GPT-6.1 Sol, or its selected effort is not supported by the active runtime,
+Once resolved, apply the fixed root policy below. If the verified root is outside the Sol and Astra families, or its selected effort is not supported by the active runtime,
 pause and ask the user to correct the selection. Do not automatically switch
-the root model. For GPT-6.1 Sol, use High usually, XHigh when needed, and Max
+the root model. For either root, use High usually, XHigh when needed, and Max
 only as a deliberate choice for exceptionally difficult work. A metadata check
 is not a reason to keep all execution at root.
 
@@ -87,24 +86,37 @@ is not evidence that the child read it.
 
 ## Route work by authority and cost
 
-Use the exact policy matrix below. Model names identify model families; only
-select model IDs and effort values that the current spawn tool supports. Every
-parent/child pair not listed is denied. In particular, Astra is not an allowed
-root or child choice in this scheme, Terra cannot spawn Sol or Terra, and Luna
-is a leaf. A child that needs stronger capability asks its parent to take over
-or route the work upward; it never invents a new edge. Do not automatically
-change the selected root model.
+Keep the selected root at its current version. For each child, choose the family
+by the work it needs to do. From the live spawn catalog select the newest
+advertised version of that family (compare numeric version components, so
+6.10 follows 6.9). Use its exact ID and a supported effort within the edge
+limit. Never guess an ID. If the latest version cannot serve the unit, keep
+the work at the parent or choose another permitted, suitable family.
+
+An Astra root handles simple or sequential tasks itself. For independent work,
+prefer Luna for mechanical or bulk output and Terra for bounded analysis.
+Default to zero Sol children. Allow one Sol Low dispatch across the entire
+Astra-rooted task, including retries and descendants. Reserve that allowance
+in the root ledger and grant no Sol slots to descendants. Dispatch only when a
+Terra result failed a named acceptance check after a targeted retry, and the
+root has independent work worth doing concurrently. Record the failed check
+and the bounded question for Sol. Otherwise Astra handles the issue itself.
+
+Only listed edges are permitted. Children escalate to their parent.
 
 ```json SWARM_POLICY_V2
 {
   "models": {
-    "sol_root": {"model": "GPT-6.1 Sol", "root_effort_guidance": ["usually-high", "xhigh-when-needed", "max-deliberate-exceptionally-difficult"]},
-    "sol_child": {"model": "GPT-6.1 Sol", "efforts": ["low"]},
-    "terra": {"model": "GPT-6.1 Terra", "efforts": "runtime-supported"},
-    "luna": {"model": "GPT-6 Luna", "efforts": "runtime-supported", "leaf": true},
-    "astra": {"model": "GPT-6 Astra", "allowed": false}
+    "sol_root": {"model": "Sol", "root_effort_guidance": ["usually-high", "xhigh-when-needed", "max-deliberate-exceptionally-difficult"]},
+    "sol_child": {"model": "Sol", "efforts": ["low"]},
+    "terra": {"model": "Terra", "efforts": "runtime-supported"},
+    "luna": {"model": "Luna", "efforts": "runtime-supported", "leaf": true},
+    "astra_root": {"model": "Astra", "task_sol_dispatch_cap": 1}
   },
   "edges": [
+    {"parent": "astra_root", "child": "sol", "max_open_children": 1, "efforts": ["low"]},
+    {"parent": "astra_root", "child": "terra", "max_open_children": 5, "efforts": ["low", "medium", "high", "xhigh"]},
+    {"parent": "astra_root", "child": "luna", "max_open_children": 20, "efforts": "runtime-supported"},
     {"parent": "sol_root", "child": "sol", "max_open_children": 3, "efforts": ["low"]},
     {"parent": "sol_root", "child": "terra", "max_open_children": 5, "efforts": ["low", "medium", "high", "xhigh"]},
     {"parent": "sol_root", "child": "luna", "max_open_children": 20, "efforts": "runtime-supported"},

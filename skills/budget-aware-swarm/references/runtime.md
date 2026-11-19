@@ -32,12 +32,15 @@ time; it does not assert that every model supports every effort.
 
 | Parent | Allowed child | Maximum open immediate children of this type | Effort |
 |---|---|---:|---|
-| Sol 6.1 root | Sol 6.1 | 3 | Low |
-| Sol 6.1 root | Terra | 5 | Up to XHigh |
-| Sol 6.1 root | Luna | 20 | Any currently supported |
-| Sol 6.1 child | Sol 6.1 | 3 | Low |
-| Sol 6.1 child | Terra | 3 | Up to XHigh |
-| Sol 6.1 child | Luna | 10 | Any currently supported |
+| Astra root | Sol | 1 per task across the tree, subject to the escalation rule in SKILL.md | Low |
+| Astra root | Terra | 5 | Up to XHigh |
+| Astra root | Luna | 20 | Any currently supported |
+| Sol root | Sol | 3 | Low |
+| Sol root | Terra | 5 | Up to XHigh |
+| Sol root | Luna | 20 | Any currently supported |
+| Sol child | Sol | 3 | Low |
+| Sol child | Terra | 3 | Up to XHigh |
+| Sol child | Luna | 10 | Any currently supported |
 | Terra child | Luna | 10 | Any currently supported |
 | Luna child | — | 0 | Leaf |
 

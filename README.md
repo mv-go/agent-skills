@@ -121,7 +121,7 @@ change Swarm/native settings or collect real session telemetry.
 
 ## Budget-Aware Swarm
 
-Invoke `$budget-aware-swarm` or `следуй схеме работы Budget-Aware Swarm`. The v2 routing matrix uses Sol 6.1 roots and children, Terra children, and Luna leaf workers; unsupported edges are forbidden. Choose the root model when starting the session. The skill cannot change a running root model or automatically switch it. Child model and effort are requested per task only from options supported by the actual runtime; requested settings are not proof of effective settings. See the [runtime reference](skills/budget-aware-swarm/references/runtime.md) for the exact matrix and verified limits.
+Invoke `$budget-aware-swarm` or `следуй схеме работы Budget-Aware Swarm`. The v2 routing matrix supports Astra and Sol roots and selects the newest available version within each child family. An Astra root defaults to zero Sol workers and may dispatch one Sol Low per task after a failed Terra retry. Luna workers are leaves. Choose the root model when starting the session. The skill cannot change a running root model or automatically switch it. Child model and effort are requested per task only from options supported by the actual runtime; requested settings are not proof of effective settings. See the [runtime reference](skills/budget-aware-swarm/references/runtime.md) for the exact matrix and verified limits.
 
 The installed skill is self-contained: its policy and references ship in the
 package, and it requires no WikiLayer connection or live policy bootstrap.
