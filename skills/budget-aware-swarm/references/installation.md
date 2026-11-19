@@ -19,7 +19,7 @@ silently reconfiguring the machine.
    may only copy these files; finish the native setup below as well. Preserve
    the package's explicit invocation policy.
 3. Resolve the current root model and effort as required by `SKILL.md`. The
-   scheme requires GPT-6.1 Sol, normally High or XHigh. Keep the user's selected
+   scheme requires Astra or Sol, normally High or XHigh. Keep the user's selected
    root; an unsupported selection follows the existing root clarification gate.
 4. Inspect the live collaboration schema and model catalog. Required spawning
    capabilities are per-child `model`, `reasoning_effort`, and an isolated
